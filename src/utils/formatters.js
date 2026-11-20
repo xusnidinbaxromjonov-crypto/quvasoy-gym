@@ -50,16 +50,7 @@ export const getStatusBadge = (status, expirationDateStr = null) => {
 };
 
 export const getMembershipTypeLabel = (type) => {
-  switch (type) {
-    case MEMBERSHIP_TYPES.MONTHLY:
-      return '🏋️ Oylik obuna (1 oy)';
-    case MEMBERSHIP_TYPES.WEEKLY:
-      return '⚡ Haftalik obuna (7 kun)';
-    case MEMBERSHIP_TYPES.DAILY:
-      return '⚡ Bir martalik';
-    default:
-      return type || '-';
-  }
+  return '🏋️ Oylik obuna (1 oy)';
 };
 
 export const getPaymentMethodLabel = (method) => {
@@ -81,7 +72,6 @@ export const getPaymentMethodLabel = (method) => {
 export const createPaymentConfirmationCard = ({
   fullName,
   phone,
-  membershipType,
   amount,
   startDate,
   expirationDate,
@@ -89,19 +79,12 @@ export const createPaymentConfirmationCard = ({
   paymentMethod = PAYMENT_METHODS.CASH,
   note = null
 }) => {
-  const typeText =
-    membershipType === MEMBERSHIP_TYPES.MONTHLY
-      ? 'Oylik (1 oy)'
-      : membershipType === MEMBERSHIP_TYPES.WEEKLY
-      ? 'Haftalik (7 kun)'
-      : 'Obuna';
-
   const statusBadge = getStatusBadge(status, expirationDate);
 
   let text = `💳 <b>TO‘LOV QABUL QILINDI (+)</b>\n\n`;
   text += `👤 <b>Mijoz:</b> ${fullName}\n`;
   text += `📞 <b>Telefon:</b> ${formatPhone(phone)}\n`;
-  text += `🏋️ <b>Obuna turi:</b> ${typeText}\n`;
+  text += `🏋️ <b>Obuna turi:</b> Oylik (1 oy)\n`;
   text += `💰 <b>To‘lov summasi:</b> ${formatUZS(amount)}\n`;
   text += `💳 <b>To‘lov usuli:</b> ${getPaymentMethodLabel(paymentMethod)}\n`;
   text += `📅 <b>Boshlanish:</b> ${formatDateUz(startDate)}\n`;

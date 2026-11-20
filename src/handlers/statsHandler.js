@@ -12,7 +12,6 @@ export const showStatistics = async (ctx) => {
   text += `👥 <b>Mijozlar hisoboti:</b>\n`;
   text += `• Jami ro‘yxatdagi mijozlar: <b>${stats.totalMembers} ta</b>\n`;
   text += `• Faol oylik obunalar (+): <b>${stats.activeMonthly} ta</b>\n`;
-  text += `• Faol haftalik obunalar (+): <b>${stats.activeWeekly} ta</b>\n`;
   text += `• 3 kun ichida tugaydiganlar: <b>${stats.expiring3Days} ta</b> ⏳\n`;
   text += `• Balansi 0 bo‘lganlar (tugagan): <b>${stats.expiredCount} ta</b> 🔴\n\n`;
 
@@ -22,8 +21,7 @@ export const showStatistics = async (ctx) => {
   text += `• Oylik tushum: <b>${formatUZS(stats.incomeThisMonth)}</b>\n\n`;
 
   text += `📈 <b>Sotuvlar hajmi (joriy oy):</b>\n`;
-  text += `• Haftalik obuna sotuvlari: <b>${stats.weeklySalesCount} ta</b>\n`;
-  text += `• Oylik obuna sotuvlari: <b>${stats.monthlySalesCount} ta</b>\n`;
+  text += `• Oylik obuna sotuvlari soni: <b>${stats.monthlySalesCount} ta</b>\n`;
 
   text += `━━━━━━━━━━━━━━━━━━━━━`;
 

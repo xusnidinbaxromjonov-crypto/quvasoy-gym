@@ -91,7 +91,7 @@ export const getFinancialStatistics = async () => {
       .from('members')
       .select('*', { count: 'exact', head: true });
 
-    // 2. Active monthly memberships
+    // 2. Active monthly memberships (+)
     const { count: activeMonthly } = await supabase
       .from('memberships')
       .select('*', { count: 'exact', head: true })
@@ -99,22 +99,14 @@ export const getFinancialStatistics = async () => {
       .gte('expiration_date', today)
       .neq('status', 'cancelled');
 
-    // 3. Active weekly memberships
-    const { count: activeWeekly } = await supabase
-      .from('memberships')
-      .select('*', { count: 'exact', head: true })
-      .eq('membership_type', MEMBERSHIP_TYPES.WEEKLY)
-      .gte('expiration_date', today)
-      .neq('status', 'cancelled');
-
-    // 4. Expired memberships (balance 0)
+    // 3. Expired memberships (balance 0)
     const { count: expiredCount } = await supabase
       .from('memberships')
       .select('*', { count: 'exact', head: true })
       .lt('expiration_date', today)
       .neq('status', 'cancelled');
 
-    // 5. Expiring within 3 days
+    // 4. Expiring within 3 days
     const future3Days = new Date();
     future3Days.setDate(future3Days.getDate() + 3);
     const future3DaysStr = future3Days.toISOString().split('T')[0];
@@ -126,15 +118,15 @@ export const getFinancialStatistics = async () => {
       .lte('expiration_date', future3DaysStr)
       .neq('status', 'cancelled');
 
-    // 6. Payments today
+    // 5. Payments today
     const { data: todayPayments } = await supabase
       .from('payments')
-      .select('amount, membership:memberships(membership_type)')
+      .select('amount')
       .eq('payment_date', today);
 
     const incomeToday = (todayPayments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-    // 7. Payments this week
+    // 6. Payments this week
     const { data: weekPayments } = await supabase
       .from('payments')
       .select('amount')
@@ -143,38 +135,25 @@ export const getFinancialStatistics = async () => {
 
     const incomeThisWeek = (weekPayments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-    // 8. Payments this month
+    // 7. Payments this month
     const { data: monthPayments } = await supabase
       .from('payments')
-      .select('amount, membership:memberships(membership_type)')
+      .select('amount')
       .gte('payment_date', monthStart)
       .lte('payment_date', monthEnd);
 
     const incomeThisMonth = (monthPayments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-    // 9. Membership sales breakdown (this month)
-    let weeklySalesCount = 0;
-    let monthlySalesCount = 0;
-
-    (monthPayments || []).forEach((p) => {
-      const type = p.membership?.membership_type;
-      if (type === MEMBERSHIP_TYPES.WEEKLY) {
-        weeklySalesCount++;
-      } else if (type === MEMBERSHIP_TYPES.MONTHLY) {
-        monthlySalesCount++;
-      }
-    });
+    const monthlySalesCount = (monthPayments || []).length;
 
     return {
       totalMembers: totalMembers || 0,
       activeMonthly: activeMonthly || 0,
-      activeWeekly: activeWeekly || 0,
       expiredCount: expiredCount || 0,
       expiring3Days: expiring3Days || 0,
       incomeToday,
       incomeThisWeek,
       incomeThisMonth,
-      weeklySalesCount,
       monthlySalesCount
     };
   } catch (err) {
@@ -182,13 +161,11 @@ export const getFinancialStatistics = async () => {
     return {
       totalMembers: 0,
       activeMonthly: 0,
-      activeWeekly: 0,
       expiredCount: 0,
       expiring3Days: 0,
       incomeToday: 0,
       incomeThisWeek: 0,
       incomeThisMonth: 0,
-      weeklySalesCount: 0,
       monthlySalesCount: 0
     };
   }

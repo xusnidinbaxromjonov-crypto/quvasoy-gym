@@ -9,12 +9,6 @@ export const membershipTypeInlineKeyboard = (actionPrefix = 'reg') => {
         `${actionPrefix}_type_${MEMBERSHIP_TYPES.MONTHLY}`
       )
     ],
-    [
-      Markup.button.callback(
-        '⚡ Haftalik obuna (50,000 so‘m / 7 kun)',
-        `${actionPrefix}_type_${MEMBERSHIP_TYPES.WEEKLY}`
-      )
-    ],
     [Markup.button.callback('❌ Bekor qilish', `${actionPrefix}_cancel`)]
   ]);
 };
@@ -44,7 +38,7 @@ export const memberProfileInlineKeyboard = (member) => {
 
   return Markup.inlineKeyboard([
     [
-      Markup.button.callback('➕ Balans to‘ldirish / Obuna', `member_renew_${member.id}`)
+      Markup.button.callback('➕ Balans to‘ldirish (+1 oy)', `member_renew_${member.id}`)
     ],
     [
       Markup.button.callback('📜 To‘lovlar tarixi', `member_history_${member.id}`),

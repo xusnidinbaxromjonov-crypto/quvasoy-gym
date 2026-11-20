@@ -1,11 +1,8 @@
 export const MEMBERSHIP_TYPES = {
-  WEEKLY: 'weekly',
-  MONTHLY: 'monthly',
-  DAILY: 'daily' // kept for backwards compatibility if needed
+  MONTHLY: 'monthly'
 };
 
 export const MEMBERSHIP_PRICES = {
-  [MEMBERSHIP_TYPES.WEEKLY]: 50000,
   [MEMBERSHIP_TYPES.MONTHLY]: 150000
 };
 
