@@ -2,6 +2,7 @@ import { bot } from '../src/bot.js';
 import { config } from '../src/config.js';
 
 export default async function handler(req, res) {
+  // Allow only POST requests from Telegram
   if (req.method !== 'POST') {
     return res.status(200).json({ status: 'ok', message: 'Quvasoy Gym Webhook Endpoint' });
   }
@@ -16,22 +17,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const update = req.body;
+    let update = req.body;
+    if (typeof update === 'string') {
+      try {
+        update = JSON.parse(update);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON body' });
+      }
+    }
+
     if (!update) {
       return res.status(400).json({ error: 'No body in request' });
     }
 
-    // Process Telegram update through Telegraf
-    await bot.handleUpdate(update, res);
+    // Process update directly via Telegram Bot API (without hijacking Serverless res)
+    await bot.handleUpdate(update);
 
-    // If Telegraf did not close the response, ensure 200 OK is returned
-    if (!res.writableEnded) {
-      res.status(200).json({ ok: true });
-    }
+    return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('[Webhook Error] Error processing update:', err);
-    if (!res.writableEnded) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+    // Always return 200 OK to Telegram so it does not retry failed updates indefinitely
+    return res.status(200).json({ ok: false, error: err.message });
   }
 }

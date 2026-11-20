@@ -38,14 +38,16 @@ import {
 
 validateConfig();
 
-// Use IPv4 HTTPS Agent to prevent DNS/IPv6 connection timeouts on Windows
-const agent = new https.Agent({
-  keepAlive: true,
-  family: 4
-});
+// Use IPv4 HTTPS Agent on Windows local, default native agent on Vercel
+const agent = process.env.VERCEL
+  ? undefined
+  : new https.Agent({
+      keepAlive: true,
+      family: 4
+    });
 
 export const bot = new Telegraf(config.botToken || 'PLACEHOLDER_TOKEN', {
-  telegram: { agent }
+  ...(agent ? { telegram: { agent } } : {})
 });
 
 // Global Error Handler
