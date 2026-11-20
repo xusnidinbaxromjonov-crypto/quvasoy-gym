@@ -5,14 +5,14 @@ export const membershipTypeInlineKeyboard = (actionPrefix = 'reg') => {
   return Markup.inlineKeyboard([
     [
       Markup.button.callback(
-        '🏋️ Oylik obuna (150,000 so‘m)',
+        '🏋️ Oylik obuna (150,000 so‘m / 1 oy)',
         `${actionPrefix}_type_${MEMBERSHIP_TYPES.MONTHLY}`
       )
     ],
     [
       Markup.button.callback(
-        '⚡ Kunlik obuna (15,000 so‘m)',
-        `${actionPrefix}_type_${MEMBERSHIP_TYPES.DAILY}`
+        '⚡ Haftalik obuna (50,000 so‘m / 7 kun)',
+        `${actionPrefix}_type_${MEMBERSHIP_TYPES.WEEKLY}`
       )
     ],
     [Markup.button.callback('❌ Bekor qilish', `${actionPrefix}_cancel`)]
@@ -44,15 +44,14 @@ export const memberProfileInlineKeyboard = (member) => {
 
   return Markup.inlineKeyboard([
     [
-      Markup.button.callback('🔄 Obunani yangilash', `member_renew_${member.id}`),
-      Markup.button.callback('💰 To‘lov qabul qilish', `member_payment_${member.id}`)
-    ],
-    [
-      Markup.button.callback('✏️ Tahrirlash', `member_edit_${member.id}`),
-      Markup.button.callback('📅 Muddatni o‘zgartirish', `member_adjustdate_${member.id}`)
+      Markup.button.callback('➕ Balans to‘ldirish / Obuna', `member_renew_${member.id}`)
     ],
     [
       Markup.button.callback('📜 To‘lovlar tarixi', `member_history_${member.id}`),
+      Markup.button.callback('✏️ Tahrirlash', `member_edit_${member.id}`)
+    ],
+    [
+      Markup.button.callback('📅 Muddatni o‘zgartirish', `member_adjustdate_${member.id}`),
       Markup.button.callback(
         isMemberActive ? '❌ Faolsizlantirish' : '✅ Faollashtirish',
         `member_toggleactive_${member.id}`
@@ -83,7 +82,7 @@ export const memberListPaginationKeyboard = (page, totalPages, filter = 'all') =
         `members_filter_all`
       ),
       Markup.button.callback(
-        filter === 'active_only' ? '🔘 Faqat faollar' : '⚪ Faqat faollar',
+        filter === 'active_only' ? '🔘 Faqat faollar (+)' : '⚪ Faqat faollar (+)',
         `members_filter_active_only`
       )
     ],

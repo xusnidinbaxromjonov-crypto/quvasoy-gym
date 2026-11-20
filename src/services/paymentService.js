@@ -36,7 +36,7 @@ export const recordPayment = async ({
   }
 };
 
-export const getMemberPaymentHistory = async (memberId, limit = 10) => {
+export const getMemberPaymentHistory = async (memberId, limit = 20) => {
   try {
     const { data, error } = await supabase
       .from('payments')
@@ -99,15 +99,15 @@ export const getFinancialStatistics = async () => {
       .gte('expiration_date', today)
       .neq('status', 'cancelled');
 
-    // 3. Active daily memberships (created or valid today)
-    const { count: activeDaily } = await supabase
+    // 3. Active weekly memberships
+    const { count: activeWeekly } = await supabase
       .from('memberships')
       .select('*', { count: 'exact', head: true })
-      .eq('membership_type', MEMBERSHIP_TYPES.DAILY)
-      .eq('expiration_date', today)
+      .eq('membership_type', MEMBERSHIP_TYPES.WEEKLY)
+      .gte('expiration_date', today)
       .neq('status', 'cancelled');
 
-    // 4. Expired memberships
+    // 4. Expired memberships (balance 0)
     const { count: expiredCount } = await supabase
       .from('memberships')
       .select('*', { count: 'exact', head: true })
@@ -153,13 +153,13 @@ export const getFinancialStatistics = async () => {
     const incomeThisMonth = (monthPayments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
     // 9. Membership sales breakdown (this month)
-    let dailySalesCount = 0;
+    let weeklySalesCount = 0;
     let monthlySalesCount = 0;
 
     (monthPayments || []).forEach((p) => {
       const type = p.membership?.membership_type;
-      if (type === MEMBERSHIP_TYPES.DAILY) {
-        dailySalesCount++;
+      if (type === MEMBERSHIP_TYPES.WEEKLY) {
+        weeklySalesCount++;
       } else if (type === MEMBERSHIP_TYPES.MONTHLY) {
         monthlySalesCount++;
       }
@@ -168,13 +168,13 @@ export const getFinancialStatistics = async () => {
     return {
       totalMembers: totalMembers || 0,
       activeMonthly: activeMonthly || 0,
-      activeDaily: activeDaily || 0,
+      activeWeekly: activeWeekly || 0,
       expiredCount: expiredCount || 0,
       expiring3Days: expiring3Days || 0,
       incomeToday,
       incomeThisWeek,
       incomeThisMonth,
-      dailySalesCount,
+      weeklySalesCount,
       monthlySalesCount
     };
   } catch (err) {
@@ -182,13 +182,13 @@ export const getFinancialStatistics = async () => {
     return {
       totalMembers: 0,
       activeMonthly: 0,
-      activeDaily: 0,
+      activeWeekly: 0,
       expiredCount: 0,
       expiring3Days: 0,
       incomeToday: 0,
       incomeThisWeek: 0,
       incomeThisMonth: 0,
-      dailySalesCount: 0,
+      weeklySalesCount: 0,
       monthlySalesCount: 0
     };
   }

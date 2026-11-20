@@ -8,7 +8,7 @@ import { config } from '../config.js';
 export const showAdminSettings = async (ctx) => {
   let text = `⚙️ <b>ADMIN SOZLAMALARI</b>\n\n`;
   text += `🏋️ <b>Klub:</b> Quvasoy Gym\n`;
-  text += `💰 <b>Kunlik obuna narxi:</b> 15 000 so‘m\n`;
+  text += `💰 <b>Haftalik obuna narxi:</b> 50 000 so‘m\n`;
   text += `💰 <b>Oylik obuna narxi:</b> 150 000 so‘m\n`;
   text += `⏰ <b>Vaqt mintaqasi:</b> Tashkent (UTC+5)\n\n`;
   text += `Quyidagi amallardan birini tanlang:`;

@@ -46,7 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_members_created_at ON public.members(created_at D
 CREATE TABLE IF NOT EXISTS public.memberships (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     member_id UUID NOT NULL REFERENCES public.members(id) ON DELETE CASCADE,
-    membership_type TEXT NOT NULL CHECK (membership_type IN ('daily', 'monthly')),
+    membership_type TEXT NOT NULL CHECK (membership_type IN ('weekly', 'monthly', 'daily')),
     start_date DATE NOT NULL,
     expiration_date DATE NOT NULL,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'expiring', 'expired', 'cancelled')),

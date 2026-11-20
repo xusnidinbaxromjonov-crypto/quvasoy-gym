@@ -27,34 +27,36 @@ export const getStatusBadge = (status, expirationDateStr = null) => {
   if (expirationDateStr) {
     const diff = getDaysDifference(expirationDateStr);
     if (diff < 0) {
-      return `🔴 Muddati o‘tgan (${Math.abs(diff)} kun avval)`;
+      return `🔴 Balans: 0 (Tugagan, ${Math.abs(diff)} kun avval)`;
     } else if (diff === 0) {
-      return '🟡 Bugun tugaydi!';
+      return '🟡 Balans: ⚠️ (Bugun tugaydi!)';
     } else if (diff <= 3) {
-      return `🟡 Tugamoqda (${diff} kun qoldi)`;
+      return `🟡 Balans: + (Tugamoqda, ${diff} kun qoldi)`;
     } else {
-      return `🟢 Faol (${diff} kun qoldi)`;
+      return `🟢 Balans: + (Faol, ${diff} kun qoldi)`;
     }
   }
 
   switch (status) {
     case MEMBERSHIP_STATUSES.ACTIVE:
-      return '🟢 Faol';
+      return '🟢 Balans: + (Faol)';
     case MEMBERSHIP_STATUSES.EXPIRING:
-      return '🟡 Muddati tugamoqda';
+      return '🟡 Balans: + (Tugamoqda)';
     case MEMBERSHIP_STATUSES.EXPIRED:
-      return '🔴 Muddati tugagan';
+      return '🔴 Balans: 0 (Tugagan)';
     default:
-      return '⚪ Belgilanmagan';
+      return '🔴 Balans: 0 (Mavjud emas)';
   }
 };
 
 export const getMembershipTypeLabel = (type) => {
   switch (type) {
     case MEMBERSHIP_TYPES.MONTHLY:
-      return '🏋️ Oylik obuna';
+      return '🏋️ Oylik obuna (1 oy)';
+    case MEMBERSHIP_TYPES.WEEKLY:
+      return '⚡ Haftalik obuna (7 kun)';
     case MEMBERSHIP_TYPES.DAILY:
-      return '⚡ Bir martalik (Kunlik)';
+      return '⚡ Bir martalik';
     default:
       return type || '-';
   }
@@ -74,7 +76,7 @@ export const getPaymentMethodLabel = (method) => {
 };
 
 /**
- * Creates the formatted confirmation receipt text as requested
+ * Creates the formatted confirmation receipt text
  */
 export const createPaymentConfirmationCard = ({
   fullName,
@@ -87,18 +89,24 @@ export const createPaymentConfirmationCard = ({
   paymentMethod = PAYMENT_METHODS.CASH,
   note = null
 }) => {
-  const typeText = membershipType === MEMBERSHIP_TYPES.MONTHLY ? 'Oylik' : 'Kunlik';
+  const typeText =
+    membershipType === MEMBERSHIP_TYPES.MONTHLY
+      ? 'Oylik (1 oy)'
+      : membershipType === MEMBERSHIP_TYPES.WEEKLY
+      ? 'Haftalik (7 kun)'
+      : 'Obuna';
+
   const statusBadge = getStatusBadge(status, expirationDate);
 
-  let text = `💳 <b>TO‘LOV TASDIQLANDI</b>\n\n`;
+  let text = `💳 <b>TO‘LOV QABUL QILINDI (+)</b>\n\n`;
   text += `👤 <b>Mijoz:</b> ${fullName}\n`;
   text += `📞 <b>Telefon:</b> ${formatPhone(phone)}\n`;
-  text += `🏋️ <b>Obuna:</b> ${typeText}\n`;
-  text += `💰 <b>To‘lov:</b> ${formatUZS(amount)}\n`;
-  text += `💳 <b>Usul:</b> ${getPaymentMethodLabel(paymentMethod)}\n`;
+  text += `🏋️ <b>Obuna turi:</b> ${typeText}\n`;
+  text += `💰 <b>To‘lov summasi:</b> ${formatUZS(amount)}\n`;
+  text += `💳 <b>To‘lov usuli:</b> ${getPaymentMethodLabel(paymentMethod)}\n`;
   text += `📅 <b>Boshlanish:</b> ${formatDateUz(startDate)}\n`;
   text += `⏳ <b>Tugash:</b> ${formatDateUz(expirationDate)}\n`;
-  text += `✅ <b>Holat:</b> ${statusBadge}\n`;
+  text += `📌 <b>Holat:</b> ${statusBadge}\n`;
 
   if (note) {
     text += `📝 <b>Izoh:</b> ${note}\n`;

@@ -24,27 +24,54 @@ export const formatDateTimeUz = (dateStr) => {
 
 /**
  * Calculates start and expiration date for a membership.
- * If renewing an active monthly membership, extends from existing expiration date!
+ * - WEEKLY: +7 days
+ * - MONTHLY: +1 month
+ * - DAILY: same day (legacy)
+ * If renewing an unexpired membership, extends from existing expiration date!
  */
 export const calculateMembershipDates = (type, paymentDateStr, existingExpirationDateStr = null) => {
   const todayStr = getTodayDateString();
   const paymentDate = paymentDateStr ? dayjs.tz(paymentDateStr, TIMEZONE) : nowTashkent();
   const basePaymentDateStr = paymentDate.format('YYYY-MM-DD');
 
-  if (type === MEMBERSHIP_TYPES.DAILY) {
-    return {
-      startDate: basePaymentDateStr,
-      expirationDate: basePaymentDateStr
-    };
+  const isWeekly = type === MEMBERSHIP_TYPES.WEEKLY;
+  const isMonthly = type === MEMBERSHIP_TYPES.MONTHLY;
+
+  // Check if member has an existing unexpired membership to extend from
+  let isUnexpired = false;
+  let existingExp = null;
+
+  if (existingExpirationDateStr) {
+    existingExp = dayjs.tz(existingExpirationDateStr, TIMEZONE);
+    const today = dayjs.tz(todayStr, TIMEZONE);
+    if (existingExp.isSame(today, 'day') || existingExp.isAfter(today, 'day')) {
+      isUnexpired = true;
+    }
   }
 
-  // Monthly membership
-  if (existingExpirationDateStr) {
-    const existingExp = dayjs.tz(existingExpirationDateStr, TIMEZONE);
-    const today = dayjs.tz(todayStr, TIMEZONE);
+  // 1. Weekly Membership (7 days)
+  if (isWeekly) {
+    if (isUnexpired && existingExp) {
+      const newExpiration = existingExp.add(7, 'day').format('YYYY-MM-DD');
+      return {
+        startDate: basePaymentDateStr,
+        expirationDate: newExpiration,
+        isExtended: true,
+        previousExpiration: existingExpirationDateStr
+      };
+    } else {
+      const newExpiration = paymentDate.add(7, 'day').format('YYYY-MM-DD');
+      return {
+        startDate: basePaymentDateStr,
+        expirationDate: newExpiration,
+        isExtended: false
+      };
+    }
+  }
 
-    // If existing membership is still active or expiring (not past today)
-    if (existingExp.isSame(today, 'day') || existingExp.isAfter(today, 'day')) {
+  // 2. Monthly Membership (1 month)
+  if (isMonthly) {
+    if (isUnexpired && existingExp) {
       const newExpiration = existingExp.add(1, 'month').format('YYYY-MM-DD');
       return {
         startDate: basePaymentDateStr,
@@ -52,14 +79,20 @@ export const calculateMembershipDates = (type, paymentDateStr, existingExpiratio
         isExtended: true,
         previousExpiration: existingExpirationDateStr
       };
+    } else {
+      const newExpiration = paymentDate.add(1, 'month').format('YYYY-MM-DD');
+      return {
+        startDate: basePaymentDateStr,
+        expirationDate: newExpiration,
+        isExtended: false
+      };
     }
   }
 
-  // If no active membership or it was already expired, start from payment date
-  const newExpiration = paymentDate.add(1, 'month').format('YYYY-MM-DD');
+  // Fallback for daily or default
   return {
     startDate: basePaymentDateStr,
-    expirationDate: newExpiration,
+    expirationDate: basePaymentDateStr,
     isExtended: false
   };
 };
@@ -71,7 +104,7 @@ export const calculateMembershipDates = (type, paymentDateStr, existingExpiratio
  * Negative = expired days ago
  */
 export const getDaysDifference = (targetDateStr) => {
-  if (!targetDateStr) return 0;
+  if (!targetDateStr) return -1;
   const today = dayjs.tz(getTodayDateString(), TIMEZONE).startOf('day');
   const target = dayjs.tz(targetDateStr, TIMEZONE).startOf('day');
   return target.diff(today, 'day');
@@ -79,7 +112,6 @@ export const getDaysDifference = (targetDateStr) => {
 
 export const getWeekRange = () => {
   const now = nowTashkent();
-  // Monday of this week to Sunday
   const start = now.startOf('week').add(1, 'day').format('YYYY-MM-DD');
   const end = now.endOf('week').add(1, 'day').format('YYYY-MM-DD');
   return { start, end };
