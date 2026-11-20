@@ -1,0 +1,30 @@
+{
+  "name": "quvasoy-gym-bot",
+  "version": "1.0.0",
+  "description": "Quvasoy Gym - Professional Telegram Membership Management Bot",
+  "main": "api/webhook.js",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/test-local.js",
+    "dev": "node scripts/test-local.js",
+    "webhook:set": "node scripts/set-webhook.js set",
+    "webhook:delete": "node scripts/set-webhook.js delete",
+    "webhook:info": "node scripts/set-webhook.js info"
+  },
+  "keywords": [
+    "telegram-bot",
+    "gym-management",
+    "telegraf",
+    "supabase",
+    "vercel-serverless",
+    "uzbekistan"
+  ],
+  "author": "Quvasoy Gym",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "telegraf": "^4.16.3"
+  }
+}
