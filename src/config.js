@@ -30,7 +30,7 @@ export const validateConfig = () => {
   if (!config.botToken) missing.push('BOT_TOKEN');
   if (!config.supabaseUrl) missing.push('SUPABASE_URL');
   if (!config.supabaseServiceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
-  
+
   if (missing.length > 0) {
     console.warn(`[Config Warning] Missing environment variables: ${missing.join(', ')}`);
   }
