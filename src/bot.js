@@ -50,6 +50,10 @@ export const bot = new Telegraf(config.botToken || 'PLACEHOLDER_TOKEN', {
 
 // Global Error Handler
 bot.catch((err, ctx) => {
+  // Ignore Telegram callback query expiration errors
+  if (err?.response?.description?.includes('query is too old')) {
+    return;
+  }
   console.error(`[Telegraf Error] Update ${ctx?.update?.update_id}:`, err);
   try {
     ctx.reply(
@@ -59,6 +63,21 @@ bot.catch((err, ctx) => {
   } catch (replyErr) {
     console.error('[Telegraf Error] Failed to send error message:', replyErr);
   }
+});
+
+// Safe answerCbQuery wrapper to prevent 400 Bad Request on expired queries
+bot.use(async (ctx, next) => {
+  if (ctx.callbackQuery) {
+    const originalAnswerCb = ctx.answerCbQuery.bind(ctx);
+    ctx.answerCbQuery = async (...args) => {
+      try {
+        return await originalAnswerCb(...args);
+      } catch (e) {
+        return false;
+      }
+    };
+  }
+  return next();
 });
 
 // 1. Security & Authentication Middleware
